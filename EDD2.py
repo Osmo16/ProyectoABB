@@ -1,115 +1,109 @@
-import pygame
+print("hola")
+import pygame   
 import sys
 import random
 
-# ====================
-# Clase Nodo
-# ====================
-class Nodo:
-    def __init__(self, poder, nombre, x=0, y=0):
-        self.poder = poder
-        self.nombre = nombre
+class Node:
+    def __init__(self, power, name, x=0, y=0):
+        self.power = power
+        self.name = name
         self.x = x
         self.y = y
-        self.izq = None
-        self.der = None
+        self.left = None
+        self.right = None
 
-# ====================
-# Clase Arbol BST
-# ====================
-class ArbolBST:
+class Tree:
     def __init__(self):
         self.raiz = None
 
-    def insertar(self, poder, nombre):
-        self.raiz = self._insertar(self.raiz, poder, nombre)
+    def insert(self, power, name):
+        self.raiz = self._insert(self.raiz, power, name)
 
-    def _insertar(self, nodo, poder, nombre):
-        if nodo is None:
-            return Nodo(poder, nombre)
-        if poder < nodo.poder:
-            nodo.izq = self._insertar(nodo.izq, poder, nombre)
-        elif poder > nodo.poder:
-            nodo.der = self._insertar(nodo.der, poder, nombre)
-        return nodo
+    def _insert(self, node, power, name):
+        if node is None:
+            return node(power, name)
+        if power < node.power:
+            node.left = self._insert(node.left, power, name)
+        elif power > node.power:
+            node.right = self._insert(node.right, power, name)
+        return node
 
-    def buscar(self, poder):
-        return self._buscar(self.raiz, poder)
+    def search(self, power):
+        return self._search(self.raiz, power)
 
-    def _buscar(self, nodo, poder):
-        if nodo is None or nodo.poder == poder:
-            return nodo
-        if poder < nodo.poder:
-            return self._buscar(nodo.izq, poder)
+    def _search(self, node, power):
+        if node is None or node.power == power:
+            return node
+        if power < node.power:
+            return self._search(node.left, power)
         else:
-            return self._buscar(nodo.der, poder)
+            return self._search(node.right, power)
 
-    def minimo(self, nodo=None):
-        nodo = nodo or self.raiz
-        while nodo and nodo.izq:
-            nodo = nodo.izq
-        return nodo
+    def minimum(self, node=None):
+        node = node or self.raiz
+        while node and node.left:
+            node = node.left
+        return node
 
-    def maximo(self, nodo=None):
-        nodo = nodo or self.raiz
-        while nodo and nodo.der:
-            nodo = nodo.der
-        return nodo
+    def maximum(self, node=None):
+        node = node or self.raiz
+        while node and node.right:
+            node = node.right
+        return node
 
     # ====================
     # Dibujar árbol
     # ====================
-    def dibujar(self, surface, fuente, x, y, nivel=1, nodo=None):
-        if nodo is None:
-            nodo = self.raiz
-        if nodo is None:
+    def dibujar(self, surface, fuente, x, y, nivel=1, node=None):
+        if node is None:
+            node = self.raiz
+        if node is None:
             return
 
-        # Dibujar nodo actual
+        # Dibujar node actual
         pygame.draw.circle(surface, (100, 200, 250), (x, y), 20)
-        texto = fuente.render(str(nodo.poder), True, (0, 0, 0))
+        texto = fuente.render(str(node.power), True, (0, 0, 0))
         surface.blit(texto, (x - 10, y - 10))
 
         # Posiciones hijos
         dx = 300 // nivel
         dy = 70
 
-        if nodo.izq:
+        if node.left:
             pygame.draw.line(surface, (0, 0, 0), (x, y), (x - dx, y + dy))
-            self.dibujar(surface, fuente, x - dx, y + dy, nivel + 1, nodo.izq)
+            self.dibujar(surface, fuente, x - dx, y + dy, nivel + 1, node.left)
 
-        if nodo.der:
+        if node.right:
             pygame.draw.line(surface, (0, 0, 0), (x, y), (x + dx, y + dy))
-            self.dibujar(surface, fuente, x + dx, y + dy, nivel + 1, nodo.der)
+            self.dibujar(surface, fuente, x + dx, y + dy, nivel + 1, node.right)
 
-# ====================
-# Clase Juego
-# ====================
+
+
 class Juego:
     def __init__(self):
         pygame.init()
         self.pantalla = pygame.display.set_mode((800, 600))
         pygame.display.set_caption("Guardianes del Bosque Ancestral")
         self.fuente = pygame.font.SysFont("Arial", 20)
-        self.arbol = ArbolBST()
+        self.arbol = Tree()
 
         # Lista de eventos predefinidos
         self.eventos = [
-            ("insertar", 50, "Gema del Río"),
-            ("insertar", 30, "Gema del Viento"),
-            ("insertar", 70, "Gema del Fuego"),
+            ("insert", 50, "Gema del Río"),
+            ("insert", 30, "Gema del Viento"),
+            ("insert", 70, "Gema del Fuego"),
             ("buscar", 40, ""),
             ("minimo", None, ""),
             ("maximo", None, ""),
-            ("insertar", 60, "Gema de la Tierra"),
-            ("insertar", 80, "Gema del Trueno"),
+            ("insert", 60, "Gema de la Tierra"),
+            ("insert", 80, "Gema del Trueno"),
             ("buscar", 30, ""),
             ("buscar", 90, ""),
             ("minimo", None, ""),
             ("maximo", None, ""),
-            ("insertar", 20, "Gema del Hielo"),
-            ("insertar", 10, "Gema de la Luna"),
-            ("insertar", 25, "Gema del Sol"),
+            ("insert", 20, "Gema del Hielo"),
+            ("insert", 10, "Gema de la Luna"),
+            ("insert", 25, "Gema del Sol"),
             ("buscar", 25, ""),
             ("buscar", 15, ""),
             ("minimo", None, ""),
@@ -146,23 +140,23 @@ class Juego:
 
     def procesar_evento(self, evento):
         tipo, poder, nombre = evento
-        if tipo == "insertar":
-            self.arbol.insertar(poder, nombre)
+        if tipo == "insert":
+            self.arbol.insert(poder, nombre)
             self.mensaje = f"Insertada gema {poder} - {nombre}"
         elif tipo == "buscar":
-            nodo = self.arbol.buscar(poder)
-            if nodo:
-                self.mensaje = f"Gema {poder} encontrada: {nodo.nombre}"
+            node = self.arbol.buscar(poder)
+            if node:
+                self.mensaje = f"Gema {poder} encontrada: {node.nombre}"
             else:
                 self.mensaje = f"Gema {poder} no existe"
         elif tipo == "minimo":
-            nodo = self.arbol.minimo()
-            if nodo:
-                self.mensaje = f"Gema mínima: {nodo.poder} - {nodo.nombre}"
+            node = self.arbol.minimo()
+            if node:
+                self.mensaje = f"Gema mínima: {node.poder} - {node.nombre}"
         elif tipo == "maximo":
-            nodo = self.arbol.maximo()
-            if nodo:
-                self.mensaje = f"Gema máxima: {nodo.poder} - {nodo.nombre}"
+            node = self.arbol.maximo()
+            if node:
+                self.mensaje = f"Gema máxima: {node.poder} - {node.nombre}"
 
 # ====================
 # Main

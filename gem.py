@@ -11,7 +11,7 @@ VERDE = (0, 255, 0)
 AZUL = (100, 149, 237)
 ROJO = (255, 80, 80)
 AMARILLO = (255, 255, 0)
-ANCHO, ALTO = 800, 600
+ANCHO, ALTO = 1000, 700
 FUENTE_TIPO = 'consolas'
 FUENTE_GRANDE = 24
 FUENTE_PEQUENA = 20
@@ -155,7 +155,7 @@ def dibujar_texto(superficie, texto, tam, x, y, color):
 def main():
     pygame.init()
     pantalla = pygame.display.set_mode((ANCHO, ALTO))
-    pygame.display.set_caption("Guardianes del Bosque - Juego 2D Interactivo")
+    pygame.display.set_caption("Guardianes del Bosque")
     reloj = pygame.time.Clock()
     
     # --- Inicialización del Juego ---
@@ -163,12 +163,12 @@ def main():
     jugador = Jugador(ANCHO // 2, ALTO // 2)
     
     gemas_en_mapa = [
-        GemaVisual(50, "Gema del Río", 100, 150),
-        GemaVisual(30, "Gema del Viento", 200, 400),
-        GemaVisual(70, "Gema de Fuego", 600, 100),
-        GemaVisual(20, "Gema de Tierra", 700, 500),
-        GemaVisual(45, "Gema de Sombra", 350, 80),
-        GemaVisual(80, "Gema de Luz", 50, 500)
+        GemaVisual(50, "Gema del Río", random.randint(5, ANCHO - 50), random.randint(5, ALTO - 150)),
+        GemaVisual(30, "Gema del Viento", random.randint(25, ANCHO - 50), random.randint(25, ALTO - 150)),
+        GemaVisual(70, "Gema de Fuego", random.randint(150, ANCHO - 50), random.randint(50, ALTO - 150)),
+        GemaVisual(20, "Gema de Tierra", random.randint(200, ANCHO - 50), random.randint(75, ALTO - 150)),
+        GemaVisual(45, "Gema de Sombra", random.randint(245, ANCHO - 50), random.randint(100, ALTO - 150)),
+        GemaVisual(80, "Gema de Luz", random.randint(375, ANCHO - 50), random.randint(150, ALTO - 150)),
     ]
     
     log_evento = "¡Usa las flechas para moverte y recoge las gemas!"
