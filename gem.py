@@ -129,6 +129,20 @@ class GemaVisual:
         pygame.draw.ellipse(superficie, self.color, self.rect)
         pygame.draw.ellipse(superficie, BLANCO, self.rect, 2)
 
+def crear_gema_aleatoria():
+    """
+    Crea y devuelve una nueva gema con poder, nombre y posición aleatorios.
+    """
+    poder = random.randint(1, 150)
+    
+    nombre = "Orbe Especial"
+    
+    # Posición aleatoria, con un margen para que no aparezca en los bordes
+    x = random.randint(50, ANCHO - 50)
+    y = random.randint(50, ALTO - 150) # Un poco más de margen abajo por el HUD
+    
+    return GemaVisual(poder, nombre, x, y)
+
 # ==============================================================================
 # SECCIÓN 4: SIMULACIÓN PRINCIPAL CON PYGAME
 # ==============================================================================
@@ -169,7 +183,7 @@ def main():
                 ejecutando = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_j: # Evento de Jefe
-                    poder_req = random.randint(35, 75)
+                    poder_req = random.randint(30, 75)
                     gema = inventario_bst.buscar(poder_req)
                     if gema:
                         log_evento = f"Jefe pide {poder_req}. ¡La tienes! Entregas '{gema.nombre}'."
@@ -183,8 +197,8 @@ def main():
                             log_evento = f"Jefe pide {poder_req}. No tienes gemas para darle."
 
         keys = pygame.key.get_pressed()
-        mov_x = keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
-        mov_y = keys[pygame.K_DOWN] - keys[pygame.K_UP]
+        mov_x = keys[pygame.K_d] - keys[pygame.K_a]
+        mov_y = keys[pygame.K_s] - keys[pygame.K_w]
         jugador.mover(mov_x, mov_y)
 
         # --- LÓGICA DEL JUEGO (COLISIONES) ---
@@ -199,6 +213,7 @@ def main():
             log_evento = f"¡Recolectaste '{gema_recolectada.nombre}' (Poder: {gema_recolectada.poder})!"
             gemas_en_mapa.remove(gema_recolectada)
 
+            gemas_en_mapa.append(crear_gema_aleatoria())
         # --- DIBUJAR EN PANTALLA ---
         pantalla.fill(NEGRO)
         
@@ -216,7 +231,7 @@ def main():
         texto_inv = "Inventario: " + ", ".join([str(g.poder) for g in inventario_ordenado])
         dibujar_texto(pantalla, texto_inv, FUENTE_PEQUENA, 10, ALTO - 40, BLANCO)
         
-        dibujar_texto(pantalla, "Mover: [Flechas] | Evento Jefe: [J]", FUENTE_PEQUENA, 10, 10, BLANCO)
+        dibujar_texto(pantalla, "Mover: [WASD] | Evento Jefe: [J]", FUENTE_PEQUENA, 10, 10, BLANCO)
         
         pygame.display.flip()
 
