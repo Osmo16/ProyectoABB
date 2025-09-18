@@ -18,7 +18,6 @@ FUENTE_PEQUENA = 20
 
 # ==============================================================================
 # SECCIÓN 2: ESTRUCTURA DE DATOS (ÁRBOL BINARIO DE BÚSQUEDA)
-# (Esta sección no cambia, es el núcleo lógico del proyecto)
 # ==============================================================================
 class Nodo:
     def __init__(self, poder, nombre, coordx, coordy):
@@ -159,6 +158,9 @@ def main():
     reloj = pygame.time.Clock()
     
     # --- Inicialización del Juego ---
+    score = 0
+    game_over = False
+
     inventario_bst = ArbolBST()
     jugador = Jugador(ANCHO // 2, ALTO // 2)
     
@@ -171,71 +173,87 @@ def main():
         GemaVisual(80, "Gema de Luz", random.randint(375, ANCHO - 50), random.randint(150, ALTO - 150)),
     ]
     
-    log_evento = "¡Usa las flechas para moverte y recoge las gemas!"
+    log_evento = "¡Muévete para recoger las gemas!"
     
+    # ... (código de inicialización va aquí arriba) ...
+
     ejecutando = True
     while ejecutando:
         reloj.tick(60)
         
-        # --- MANEJO DE ENTRADAS (CONTROLES) ---
+        # --- 1. MANEJO DE EVENTOS ---
+        # Este bloque solo se preocupa por las entradas del usuario (teclado, cerrar ventana)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 ejecutando = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_j: # Evento de Jefe
-                    poder_req = random.randint(30, 75)
-                    gema = inventario_bst.buscar(poder_req)
-                    if gema:
-                        log_evento = f"Jefe pide {poder_req}. ¡La tienes! Entregas '{gema.nombre}'."
-                        inventario_bst.eliminar(poder_req)
-                    else:
-                        suc = inventario_bst.sucesor(poder_req)
-                        if suc:
-                            log_evento = f"Jefe pide {poder_req}. Das la más cercana: '{suc.nombre}' ({suc.poder})."
+
+            if not game_over:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_j: # Evento de Jefe
+                        # ... (toda tu lógica de puntaje va aquí, está correcta) ...
+                        poder_req = random.randint(30, 75)
+                        gema = inventario_bst.buscar(poder_req)
+                        if gema:
+                            score += 2
+                            inventario_bst.eliminar(poder_req)
+                        elif inventario_bst.sucesor(poder_req):
+                            suc = inventario_bst.sucesor(poder_req)
+                            score += 1
                             inventario_bst.eliminar(suc.poder)
                         else:
-                            log_evento = f"Jefe pide {poder_req}. No tienes gemas para darle."
+                            score = max(0, score - 1)
+                        
+                        if score >= 20:
+                            game_over = True
+                            log_evento = f"¡Alcanzaste {score} puntos!"
+                        else:
+                            log_evento = f"Evento de Jefe terminado. Puntaje: {score}"
+        
+     
+        if not game_over: 
+            keys = pygame.key.get_pressed()
+            mov_x = keys[pygame.K_d] - keys[pygame.K_a]
+            mov_y = keys[pygame.K_s] - keys[pygame.K_w]
+            jugador.mover(mov_x, mov_y)
 
-        keys = pygame.key.get_pressed()
-        mov_x = keys[pygame.K_d] - keys[pygame.K_a]
-        mov_y = keys[pygame.K_s] - keys[pygame.K_w]
-        jugador.mover(mov_x, mov_y)
+            # Lógica de colisiones
+            gemas_a_recolectar = []
+            for gema_visual in gemas_en_mapa:
+                if jugador.rect.colliderect(gema_visual.rect):
+                    gemas_a_recolectar.append(gema_visual)
+            
+            for gema_recolectada in gemas_a_recolectar:
+                inventario_bst.insertar(gema_recolectada.poder, gema_recolectada.nombre, gema_recolectada.rect.x, gema_recolectada.rect.y)
+                log_evento = f"¡Recolectaste '{gema_recolectada.nombre}' (Poder: {gema_recolectada.poder})!"
+                gemas_en_mapa.remove(gema_recolectada)
+                gemas_en_mapa.append(crear_gema_aleatoria())
 
-        # --- LÓGICA DEL JUEGO (COLISIONES) ---
-        gemas_a_recolectar = []
-        for gema_visual in gemas_en_mapa:
-            if jugador.rect.colliderect(gema_visual.rect):
-                gemas_a_recolectar.append(gema_visual)
-        
-        for gema_recolectada in gemas_a_recolectar:
-            # La interacción del jugador (colisión) llama a la operación del árbol
-            inventario_bst.insertar(gema_recolectada.poder, gema_recolectada.nombre, gema_recolectada.rect.x, gema_recolectada.rect.y)
-            log_evento = f"¡Recolectaste '{gema_recolectada.nombre}' (Poder: {gema_recolectada.poder})!"
-            gemas_en_mapa.remove(gema_recolectada)
+            # Dibujado de la pantalla de juego
+            pantalla.fill(NEGRO)
+            jugador.dibujar(pantalla)
+            for gema in gemas_en_mapa:
+                gema.dibujar(pantalla)
+            
+            # Dibujar HUD
+            pygame.draw.rect(pantalla, (20, 20, 20), (0, ALTO - 100, ANCHO, 100))
+            dibujar_texto(pantalla, "Log del Evento:", FUENTE_PEQUENA, 10, ALTO - 95, AMARILLO)
+            dibujar_texto(pantalla, log_evento, FUENTE_PEQUENA, 20, ALTO - 70, BLANCO)
+            inventario_ordenado = inventario_bst.recorrido_inorden()
+            texto_inv = "Inventario: " + ", ".join([str(g.poder) for g in inventario_ordenado])
+            dibujar_texto(pantalla, texto_inv, FUENTE_PEQUENA, 10, ALTO - 40, BLANCO)
+            dibujar_texto(pantalla, "Mover: [WASD] | Evento Jefe: [J]", FUENTE_PEQUENA, 10, 10, BLANCO)
+            dibujar_texto(pantalla, f"Puntaje: {score} / 20", FUENTE_GRANDE, ANCHO - 220, 10, BLANCO)
 
-            gemas_en_mapa.append(crear_gema_aleatoria())
-        # --- DIBUJAR EN PANTALLA ---
-        pantalla.fill(NEGRO)
-        
-        # Dibujar objetos del juego
-        jugador.dibujar(pantalla)
-        for gema in gemas_en_mapa:
-            gema.dibujar(pantalla)
-        
-        # Dibujar HUD (Interfaz de usuario)
-        pygame.draw.rect(pantalla, (20, 20, 20), (0, ALTO - 100, ANCHO, 100))
-        dibujar_texto(pantalla, "Log del Evento:", FUENTE_PEQUENA, 10, ALTO - 95, AMARILLO)
-        dibujar_texto(pantalla, log_evento, FUENTE_PEQUENA, 20, ALTO - 70, BLANCO)
-        
-        inventario_ordenado = inventario_bst.recorrido_inorden()
-        texto_inv = "Inventario: " + ", ".join([str(g.poder) for g in inventario_ordenado])
-        dibujar_texto(pantalla, texto_inv, FUENTE_PEQUENA, 10, ALTO - 40, BLANCO)
-        
-        dibujar_texto(pantalla, "Mover: [WASD] | Evento Jefe: [J]", FUENTE_PEQUENA, 10, 10, BLANCO)
+        else: 
+            pantalla.fill(AZUL)
+            dibujar_texto(pantalla, "¡GANASTE!", FUENTE_GRANDE, ANCHO // 2, ALTO // 2 - 50, BLANCO)
+            dibujar_texto(pantalla, log_evento, FUENTE_PEQUENA, ANCHO // 2, ALTO // 2 + 10, BLANCO)
+            dibujar_texto(pantalla, "Cierra la ventana para salir", FUENTE_PEQUENA, ANCHO // 2, ALTO - 50, BLANCO)
         
         pygame.display.flip()
 
     pygame.quit()
+
 
 if __name__ == '__main__':
     main()
