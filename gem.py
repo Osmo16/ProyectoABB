@@ -33,9 +33,15 @@ class ArbolBST:
         self.raiz = None
 
     def insertar(self, poder, nombre, coordx, coordy):
+        # Verifica si la clave ya existe antes de insertar
+        if self.buscar(poder) is not None:
+            return  # No hace nada si la gema con ese poder ya está en el inventario
+
         nuevo_nodo = Nodo(poder, nombre, coordx, coordy)
-        if self.raiz is None: self.raiz = nuevo_nodo
-        else: self._insertar_recursivo(self.raiz, nuevo_nodo)
+        if self.raiz is None:
+            self.raiz = nuevo_nodo
+        else:
+            self._insertar_recursivo(self.raiz, nuevo_nodo)
 
     def _insertar_recursivo(self, actual, nuevo_nodo):
         if nuevo_nodo.poder < actual.poder:
@@ -175,7 +181,6 @@ def main():
     
     log_evento = "¡Muévete para recoger las gemas!"
     
-    # ... (código de inicialización va aquí arriba) ...
 
     ejecutando = True
     while ejecutando:
@@ -191,7 +196,7 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_j: # Evento de Jefe
                         # ... (toda tu lógica de puntaje va aquí, está correcta) ...
-                        poder_req = random.randint(30, 75)
+                        poder_req = random.randint(1, 150)
                         gema = inventario_bst.buscar(poder_req)
                         if gema:
                             score += 2
@@ -203,11 +208,11 @@ def main():
                         else:
                             score = max(0, score - 1)
                         
-                        if score >= 20:
+                        if score >= 50:
                             game_over = True
                             log_evento = f"¡Alcanzaste {score} puntos!"
                         else:
-                            log_evento = f"Evento de Jefe terminado. Puntaje: {score}"
+                            log_evento = f"Evento de Jefe: Dame la gema de poder {poder_req} o la mas cercana. Puntaje: {score}"
         
      
         if not game_over: 
