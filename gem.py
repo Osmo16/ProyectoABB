@@ -246,8 +246,8 @@ def main():
 
         else: 
             pantalla.fill(AZUL)
-            dibujar_texto(pantalla, "¡GANASTE!", FUENTE_GRANDE, ANCHO // 2, ALTO // 2 - 50, BLANCO)
-            dibujar_texto(pantalla, log_evento, FUENTE_PEQUENA, ANCHO // 2, ALTO // 2 + 10, BLANCO)
+            dibujar_texto(pantalla, "¡GANASTE!", FUENTE_GRANDE, ANCHO // 2.2, ALTO // 2 - 50, BLANCO)
+            dibujar_texto(pantalla, log_evento, FUENTE_PEQUENA, ANCHO // 2.6, ALTO // 2 + 10, BLANCO)
             dibujar_texto(pantalla, "Cierra la ventana para salir", FUENTE_PEQUENA, ANCHO // 2, ALTO - 50, BLANCO)
         
         pygame.display.flip()
