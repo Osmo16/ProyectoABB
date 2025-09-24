@@ -3,7 +3,7 @@ import random
 import math
 
 # ==============================================================================
-# SECCIÓN 1: CONFIGURACIÓN
+# SECCIÓN 1: CONFIGURACIÓN INICIAL
 # ==============================================================================
 NEGRO = (0, 0, 0)
 BLANCO = (255, 255, 255)
@@ -187,7 +187,6 @@ def main():
         reloj.tick(60)
         
         # --- 1. MANEJO DE EVENTOS ---
-        # Este bloque solo se preocupa por las entradas del usuario (teclado, cerrar ventana)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 ejecutando = False
@@ -195,7 +194,6 @@ def main():
             if not game_over:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_j: # Evento de Jefe
-                        # ... (toda tu lógica de puntaje va aquí, está correcta) ...
                         poder_req = random.randint(1, 150)
                         gema = inventario_bst.buscar(poder_req)
                         if gema:
